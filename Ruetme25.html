@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RUET ME'25 – Academic Resource Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#04060f;--card:rgba(8,13,32,0.88);
+  --accent:#00d4ff;--accent2:#7c3aed;--accent3:#f97316;
+  --green:#10b981;--gold:#f59e0b;
+  --text:#e2e8f0;--muted:#94a3b8;--border:rgba(0,212,255,0.18);
+  --glow:0 0 24px rgba(0,212,255,0.25);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:16px;min-height:100vh;overflow-x:hidden;}
+#bgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.6;}
+header{position:relative;z-index:10;text-align:center;padding:48px 20px 28px;background:linear-gradient(180deg,rgba(4,6,15,0.97) 60%,transparent);}
+.brand-badge{display:inline-block;border:2px solid var(--accent2);color:#fff;font-family:'Orbitron',monospace;font-size:13px;font-weight:700;letter-spacing:3px;padding:7px 26px;margin-bottom:18px;background:rgba(124,58,237,0.18);box-shadow:0 0 24px rgba(124,58,237,0.45);clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);}
+header h1{font-family:'Orbitron',monospace;font-size:clamp(20px,4vw,40px);font-weight:900;letter-spacing:2px;background:linear-gradient(90deg,#fff 30%,var(--accent) 80%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
+header p{color:var(--muted);font-size:14px;letter-spacing:1px;}
+.divider{width:200px;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);margin:16px auto 0;}
+nav{position:sticky;top:0;z-index:100;background:rgba(4,6,15,0.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;}
+.search-row{display:flex;gap:10px;width:100%;max-width:640px;}
+.search-row input{flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;padding:9px 16px;outline:none;transition:border .2s;}
+.search-row input:focus{border-color:var(--accent);}
+.search-row input::placeholder{color:var(--muted);}
+.btn-search{background:var(--accent2);border:none;border-radius:8px;color:#fff;font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:1px;padding:9px 20px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.btn-search:hover{background:#6d28d9;box-shadow:0 0 16px rgba(124,58,237,0.5);}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+.tab{background:transparent;border:1.5px solid rgba(255,255,255,0.15);border-radius:30px;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;padding:7px 18px;cursor:pointer;transition:all .22s;letter-spacing:.5px;}
+.tab:hover{border-color:var(--accent);color:var(--accent);}
+.tab.active{background:linear-gradient(90deg,var(--accent),#0090ff);border-color:transparent;color:#04060f;font-weight:700;box-shadow:0 0 18px rgba(0,212,255,0.4);}
+.section{display:none;position:relative;z-index:5;max-width:960px;margin:0 auto;padding:36px 20px 100px;}
+.section.active{display:block;}
+.sec-heading{font-family:'Orbitron',monospace;font-size:12px;font-weight:700;letter-spacing:3px;color:var(--accent);margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+.sec-heading::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent),transparent);}
+.count-badge{background:rgba(0,212,255,0.1);border:1px solid var(--accent);border-radius:20px;font-size:11px;font-weight:600;padding:2px 12px;color:var(--accent);font-family:'Share Tech Mono',monospace;white-space:nowrap;}
+
+/* ===== NOTICE CATS ===== */
+.notice-cats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;}
+.ncat-btn{background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;padding:10px 18px;cursor:pointer;transition:all .22s;display:flex;align-items:center;gap:8px;position:relative;}
+.ncat-btn:hover{border-color:var(--accent);color:var(--accent);}
+.ncat-btn.active{border-color:var(--accent2);color:#fff;background:rgba(124,58,237,0.18);}
+.ncat-btn svg{width:16px;height:16px;flex-shrink:0;}
+
+.teacher-btn, .cover-btn {
+  background: rgba(16, 185, 129, 0.04);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  color: var(--muted);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 18px;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all .22s;
+}
+.teacher-btn:hover {
+  border-color: var(--green);
+  color: #10b981;
+}
+.cover-btn:hover {
+  border-color: var(--accent3);
+  color: var(--accent3);
+}
+.teacher-btn svg, .cover-btn svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.ncat-btn .arrow{margin-left:4px;font-size:10px;transition:transform .2s;}
+.ncat-btn.open .arrow{transform:rotate(180deg);}
+.wa-dropdown{display:none;position:absolute;top:calc(100% + 6px);left:0;min-width:210px;background:rgba(10,14,35,0.98);border:1px solid var(--border);border-radius:10px;z-index:9999;overflow:hidden;box-shadow:0 8px 28px rgba(0,0,0,0.6);}
+.ncat-btn.open .wa-dropdown{display:block;}
+.wa-item{display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--text);font-size:14px;font-weight:600;text-decoration:none;transition:background .18s;}
+.wa-item:hover{background:rgba(124,58,237,0.2);color:#fff;}
+.wa-item .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dot-a{background:var(--accent);}
+.dot-b{background:#a78bfa;}
+.dot-c{background:var(--accent3);}
+.dot-ts{background:var(--green);}
+
+.notice-panel{display:none;}
+.notice-panel.active{display:block;}
+
+.notice-card{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--accent2);border-radius:10px;padding:22px 24px;margin-bottom:14px;transition:all .22s;animation:fadeUp .4s ease both;}
+.notice-card:hover{border-left-color:var(--accent);box-shadow:var(--glow);transform:translateX(4px);}
+.notice-date{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1.5px;margin-bottom:8px;}
+.notice-title{font-size:17px;font-weight:700;margin-bottom:10px;line-height:1.3;}
+.notice-link{color:var(--accent);font-size:13px;font-weight:600;text-decoration:none;letter-spacing:.5px;}
+.notice-link:hover{color:#fff;}
+
+.ext-link-card{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  animation: fadeUp .4s ease both;
+  margin-bottom: 14px;
+  width: 100%;
+}
+.ext-link-card:hover{box-shadow:var(--glow);}
+.ext-link-label{font-size:16px;font-weight:700;}
+.ext-link-sub{font-size:12px;color:var(--muted);margin-top:3px;}
+.btn-visit{background:linear-gradient(90deg,var(--accent2),#4f46e5);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;padding:8px 18px;cursor:pointer;text-decoration:none;white-space:nowrap;transition:all .2s;display:inline-block;}
+.btn-visit:hover{opacity:.85;transform:translateY(-1px);}
+
+/* ===== DRIVE CARDS ===== */
+.drive-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-bottom:30px;}
+.drive-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px 20px;text-align:center;text-decoration:none;color:var(--text);transition:all .25s;animation:fadeUp .4s ease both;display:block;}
+.drive-card:hover{border-color:var(--accent);box-shadow:var(--glow);transform:translateY(-4px);}
+.drive-icon{font-size:34px;margin-bottom:12px;}
+.drive-name{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;margin-bottom:4px;}
+.drive-sub{font-size:12px;color:var(--muted);}
+.drive-card.sec-a-card{border-top:3px solid var(--accent);}
+.drive-card.sec-b-card{border-top:3px solid #7c3aed;}
+.drive-card.sec-c-card{border-top:3px solid var(--accent3);}
+.drive-card.res-card{border-top:3px solid var(--green);}
+.drive-card.prev-card{border-top:3px solid var(--gold);}
+.sub-label{font-family:'Orbitron',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:12px;margin-top:4px;}
+
+/* ===== FAMILY ===== */
+.section-sub{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px;}
+.sec-filter{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:20px;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;padding:5px 16px;cursor:pointer;transition:all .2s;}
+.sec-filter.active,.sec-filter:hover{background:var(--accent2);border-color:var(--accent2);color:#fff;}
+.students-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:14px;}
+.stu-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 12px 16px;text-align:center;transition:all .22s;animation:fadeUp .35s ease both;}
+.stu-card:hover{border-color:var(--accent);box-shadow:var(--glow);transform:translateY(-4px);}
+.stu-card.cr-card{border-color:var(--gold);box-shadow:0 0 16px rgba(245,158,11,0.2);}
+/* Avatar */
+.stu-avatar{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:15px;font-weight:700;margin:0 auto 4px;border:2px solid;position:relative;overflow:hidden;}
+.stu-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;position:absolute;top:0;left:0;}
+.stu-avatar .av-initials{position:relative;z-index:1;}
+.cr-crown{position:absolute;top:-13px;left:50%;transform:translateX(-50%);font-size:16px;line-height:1;}
+.stu-name{font-size:13px;font-weight:700;line-height:1.35;margin-bottom:5px;margin-top:6px;}
+.stu-roll{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:8px;}
+/* CR badge */
+.cr-badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:1px;padding:2px 8px;border-radius:20px;background:rgba(245,158,11,0.15);color:var(--gold);border:1px solid rgba(245,158,11,0.4);margin-bottom:6px;}
+/* Social icons */
+.stu-socials{display:flex;justify-content:center;gap:10px;margin-top:6px;}
+.stu-social-btn{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;text-decoration:none;transition:all .2s;border:1px solid var(--border);}
+.stu-social-btn:hover{transform:scale(1.12);}
+.stu-social-btn.fb{background:rgba(24,119,242,0.12);border-color:rgba(24,119,242,0.4);color:#1877f2;}
+.stu-social-btn.fb:hover{background:rgba(24,119,242,0.25);}
+.stu-social-btn.call{background:rgba(16,185,129,0.12);border-color:rgba(16,185,129,0.4);color:#10b981;}
+.stu-social-btn.call:hover{background:rgba(16,185,129,0.25);}
+.stu-social-btn svg{width:15px;height:15px;}
+/* Avatar colors */
+.av0{background:rgba(0,212,255,0.1);border-color:var(--accent);color:var(--accent);}
+.av1{background:rgba(124,58,237,0.12);border-color:#7c3aed;color:#a78bfa;}
+.av2{background:rgba(249,115,22,0.1);border-color:var(--accent3);color:var(--accent3);}
+.av3{background:rgba(16,185,129,0.1);border-color:#10b981;color:#34d399;}
+.av4{background:rgba(236,72,153,0.1);border-color:#ec4899;color:#f472b6;}
+.av-cr{background:rgba(245,158,11,0.12)!important;border-color:var(--gold)!important;color:var(--gold)!important;box-shadow:0 0 12px rgba(245,158,11,0.3);}
+
+/* ===== FOOTER ===== */
+footer{position:relative;z-index:5;text-align:center;padding:22px 20px 14px;border-top:1px solid var(--border);color:var(--muted);font-size:12px;font-family:'Share Tech Mono',monospace;}
+.footer-main{margin-bottom:6px;}
+.footer-dev{font-size:10px;color:rgba(148,163,184,0.55);margin-top:5px;}
+.footer-dev a{color:rgba(124,58,237,0.7);text-decoration:none;transition:color .2s;}
+.footer-dev a:hover{color:#a78bfa;}
+.contact-fab{position:fixed;bottom:26px;right:26px;z-index:200;background:linear-gradient(135deg,var(--accent2),#4f46e5);border:none;border-radius:30px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;padding:11px 20px;cursor:pointer;box-shadow:0 4px 24px rgba(124,58,237,0.5);display:flex;align-items:center;gap:8px;transition:all .22s;text-decoration:none;}
+.contact-fab:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(124,58,237,0.65);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+
+<header>
+  <div class="brand-badge">RUET ME'25</div>
+  <h1>Academic Resource Portal</h1>
+  <p>Official Notices, Course Materials &amp; Updates &nbsp;·&nbsp; Dept. of Mechanical Engineering</p>
+  <div class="divider"></div>
+</header>
+
+<nav>
+  <div class="search-row">
+    <input type="text" id="searchInput" placeholder="Search...">
+    <button class="btn-search" onclick="doSearch()">SEARCH</button>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('notices',this)">Latest Notices</button>
+    <button class="tab" onclick="switchTab('resources',this)">Class Notes &amp; Resources</button>
+    <button class="tab" onclick="switchTab('family',this)">Our Family</button>
+  </div>
+</nav>
+
+<section class="section active" id="sec-notices">
+  <div class="sec-heading">LATEST NOTICES</div>
+  <div class="notice-cats" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; align-items: center;">
+
+    <button class="ncat-btn active" onclick="showNoticePanel('common',this)" id="ncat-common">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      All Notices
+    </button>
+
+    <button class="ncat-btn" onclick="showNoticePanel('me',this)" id="ncat-me">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      ME Dept. Notice
+    </button>
+
+    <button class="ncat-btn" onclick="showNoticePanel('uni',this)" id="ncat-uni">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+      University Notice
+    </button>
+
+    <button class="ncat-btn" onclick="showNoticePanel('teacher',this)" id="ncat-teacher">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="9" cy="7" r="4"></circle>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+        <path d="M16 3.13a4 4 0 01 0 7.75"></path>
+      </svg>
+      Our Teachers
+    </button>
+    
+    <a class="cover-btn" href="https://ruet-cover-page.github.io/" target="_blank">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10 9 9 9 8 9"></polyline>
+      </svg>
+      Cover Page Generator
+    </a>
+
+  </div>
+
+  <div class="notice-panel active" id="panel-common">
+    <div class="notice-card">
+      <div class="notice-date">June 14, 2026</div>
+      <div class="notice-title">CT Routine</div>
+      <a href="https://drive.google.com/file/d/1H71i6i9s1YqYMfOQXzKdQ361kt2p_I3Z/view?usp=drive_link" target="_blank" class="notice-link">Download Notice (PDF)</a>
+    </div>
+    <div class="notice-card">
+      <div class="notice-date">MAY 19, 2026</div>
+      <div class="notice-title">Notice on General Safety and Accident Prevention During Eid-ul-Adha Holidays</div>
+      <a href="https://drive.google.com/file/d/14zZpQLz4eqepECtemPSI-Xt-jPOizSAg/view?usp=drive_link" target="_blank" class="notice-link">Download Notice (PDF)</a>
+    </div>
+    <div class="notice-card">
+      <div class="notice-date">MAY 17, 2026</div>
+      <div class="notice-title">Student Registration Serial No.</div>
+      <a href="https://drive.google.com/file/d/1-FKE28I2DASll_mQZ_Yk-aLgK-I6QXKE/view?usp=drive_link" target="_blank" class="notice-link">Download Notice (PDF)</a>
+    </div>
+    <div class="notice-card">
+      <div class="notice-date">MAY 11, 2026</div>
+      <div class="notice-title">Notice regarding submission of bank account details by board scholarship recipients of all departments</div>
+      <a href="https://drive.google.com/file/d/15FbwEvx9vyN-3R7GFq19i4YLnl_2QqbI/view?usp=drive_link" target="_blank" class="notice-link">Download Notice (PDF)</a>
+    </div>
+    <div class="notice-card">
+      <div class="notice-date">MAY 08, 2026</div>
+      <div class="notice-title">ME Department Students Roll Allocation</div>
+      <a href="https://drive.google.com/file/d/1yPc5O6Mb-t4PCO2LEs_ujwYNLaGA0XY-/view?usp=drive_link" target="_blank" class="notice-link">Download Notice (PDF)</a>
+    </div>
+  </div>
+
+  <div class="notice-panel" id="panel-me">
+    <div class="ext-link-card">
+      <div>
+        <div class="ext-link-label">ME Department Official Notice Board</div>
+        <div class="ext-link-sub">me.ruet.ac.bd – Official notices from the Mechanical Engineering Department</div>
+      </div>
+      <a href="https://www.me.ruet.ac.bd/notice" target="_blank" class="btn-visit">Visit →</a>
+    </div>
+  </div>
+
+  <div class="notice-panel" id="panel-uni">
+    <div class="ext-link-card">
+      <div>
+        <div class="ext-link-label">RUET University Official Notice Board</div>
+        <div class="ext-link-sub">ruet.ac.bd – Official notices from Rajshahi University of Engineering &amp; Technology</div>
+      </div>
+      <a href="https://www.ruet.ac.bd/notice" target="_blank" class="btn-visit">Visit →</a>
+    </div>
+  </div>
+
+  <div class="notice-panel" id="panel-teacher">
+    <div class="ext-link-card">
+      <div>
+        <div class="ext-link-label">ME Department Teachers Directory</div>
+        <div class="ext-link-sub">me.ruet.ac.bd – Faculty members of Mechanical Engineering Department</div>
+      </div>
+      <a href="https://www.me.ruet.ac.bd/teacher" target="_blank" class="btn-visit">Visit →</a>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="sec-resources">
+  <div class="sec-heading">CLASS NOTES &amp; RESOURCES</div>
+
+  <div class="sub-label">CLASS NOTES — BY SECTION</div>
+  <div class="drive-grid">
+    <a class="drive-card sec-a-card" href="https://drive.google.com/drive/folders/1HRcnfqhRjJ9TzXQqojgZd5D1Jz4qB94r" target="_blank">
+      <div class="drive-icon">📂</div>
+      <div class="drive-name">Section A</div>
+      <div class="drive-sub">Class notes &amp; materials for Section A</div>
+    </a>
+    <a class="drive-card sec-b-card" href="https://drive.google.com/drive/folders/11JdtG-dMrot-gTXkP7yew2jht9crhXAK?usp=drive_link" target="_blank">
+      <div class="drive-icon">📂</div>
+      <div class="drive-name">Section B</div>
+      <div class="drive-sub">Class notes &amp; materials for Section B</div>
+    </a>
+    <a class="drive-card sec-c-card" href="https://drive.google.com/drive/folders/1m_InpSqti9NNzPiaYbRUYZz29d_qHWVA?usp=drive_link" target="_blank">
+      <div class="drive-icon">📂</div>
+      <div class="drive-name">Section C</div>
+      <div class="drive-sub">Class notes &amp; materials for Section C</div>
+    </a>
+  </div>
+
+  <div class="sub-label">RESOURCES</div>
+  <div class="drive-grid">
+    <a class="drive-card res-card" href="https://drive.google.com/drive/folders/18qCFP6b0T4jYIbxszQ9i_nbWnhSRa-GT?usp=drive_link" target="_blank">
+      <div class="drive-icon">🗂️</div>
+      <div class="drive-name">Resources</div>
+      <div class="drive-sub">Syllabus, reference books, course materials &amp; more</div>
+    </a>
+  </div>
+
+  <div class="sub-label">RUET ME PREVIOUS WEBSITES</div>
+  <div class="drive-grid">
+    <a class="drive-card prev-card" href="https://sites.google.com/view/ruetmechabot" target="_blank">
+      <div class="drive-icon">🤖</div>
+      <div class="drive-name">Mechabot</div>
+      <div class="btn-visit" style="margin-top:8px;">Visit →</div>
+    </a>
+    <a class="drive-card prev-card" href="https://mechaverse.wealthdock.org/" target="_blank">
+      <div class="drive-icon">🌐</div>
+      <div class="drive-name">Mechaverse</div>
+      <div class="btn-visit" style="margin-top:8px;">Visit →</div>
+    </a>
+  </div>
+</section>
+
+<section class="section" id="sec-family">
+  <div class="sec-heading">OUR FAMILY <span class="count-badge" id="stuCount">180 Students</span></div>
+  <div class="section-sub">
+    <button class="sec-filter active" onclick="filterSection('ALL',this)">All (180)</button>
+    <button class="sec-filter" onclick="filterSection('A',this)">Section A (60)</button>
+    <button class="sec-filter" onclick="filterSection('B',this)">Section B (60)</button>
+    <button class="sec-filter" onclick="filterSection('C',this)">Section C (60)</button>
+  </div>
+  <div class="students-grid" id="studentsGrid"></div>
+</section>
+
+<footer>
+  <div class="footer-main">2026 &copy; RUET ME'25 &nbsp;·&nbsp; Department of Mechanical Engineering, RUET &nbsp;·&nbsp; All Rights Reserved</div>
+  <div class="footer-dev">Developed by <a href="https://www.facebook.com/ehasanul.haque.shihab" target="_blank">Ehasanul Haque Shihab (2502012)</a></div>
+</footer>
+
+<a href="mailto:me25@ruet.ac.bd" class="contact-fab">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+  Contact
+</a>
+
+<script>
+// ======================================================
+// NOTICE FUNCTIONS
+// ======================================================
+function showNoticePanel(id,btn){
+  document.querySelectorAll('.ncat-btn').forEach(b=>{b.classList.remove('active');});
+  document.querySelectorAll('.notice-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-'+id).classList.add('active');
+}
+
+// ======================================================
+// STUDENT DATA
+// CR = Class Representative — roll numbers to be updated
+// fb = facebook profile link, phone = phone number
+// ======================================================
+const students=[
+{roll:"2502001",name:"Atiq Faiyaz Rahman",section:"A",phone:"01734026425",fb:"https://www.facebook.com/share/1D5mF71pf7/",img:"https://drive.google.com/thumbnail?id=1snslufgj9PiTgDMHtn6IdGuFHIxtptxn&sz=w200",cr:false},
+  {roll:"2502002",name:"Farhan Sadik Siam",section:"A",phone:"",fb:"https://www.facebook.com/profile.php?id=100080350512445",img:"https://drive.google.com/thumbnail?id=10zaUJ_DL3le5sjEfw2LQOh7hcSluWz7j&sz=w200",cr:false},
+  {roll:"2502003",name:"Salman Aziz Mahi",section:"A",phone:"",fb:"https://www.facebook.com/profile.php?id=61587489802099",img:"https://drive.google.com/thumbnail?id=1gHlZfPsy1qkHyNCYw6EEgdwtclR_qaHp&sz=w200",cr:false},
+  {roll:"2502004",name:"Tasnim Alam Shuvro",section:"A",phone:"",fb:"https://www.facebook.com/yashrif.shuvro",img:"https://drive.google.com/thumbnail?id=1iojqOcId-Kjm4SWjrsu6_AEhp6bSErYm&sz=w200",cr:false},
+  {roll:"2502005",name:"Md. Mahadi Hassan Bhuiyan",section:"A",phone:"'01818962428",fb:"https://www.facebook.com/share/1GLewyMM8p/?mibextid=wwXIfr",img:"https://drive.google.com/thumbnail?id=1YN-1v75lsxoJkQ-bI6PD2_jyk6MJdQ2Z&sz=w200",cr:false},
+  {roll:"2502006",name:"Tasnia Ahmed",section:"A",phone:"01863005004",fb:"https://www.facebook.com/share/1ESHfSVPgJ/",img:"https://drive.google.com/thumbnail?id=1sY5XMcaEP08BjeKE-vA5YN6C4bpbcbIg&sz=w200",cr:false},
+  {roll:"2502007",name:"Md. Omar Faruque",section:"A",phone:"01606192256",fb:"https://www.facebook.com/share/18jniGmMWi/",img:"https://drive.google.com/thumbnail?id=1--6BeaKurKAFHYEb-AvefqWdg1NDQzpw&sz=w200",cr:false},
+  {roll:"2502008",name:"Rhiju Dhar",section:"A",phone:"01816814085",fb:"https://www.facebook.com/share/1cJCHTWKTx/",img:"https://drive.google.com/thumbnail?id=1-E9KJLeCygm_gKixk07ENjsEOylXR19E&sz=w200",cr:false},
+  {roll:"2502009",name:"Eamin Mahmud",section:"A",phone:"01909337312",fb:"https://www.facebook.com/share/18mocfAe2t/",img:"https://drive.google.com/thumbnail?id=1DPIwKjREcd-AoymHZuZz6pmBRxwWZcpy&sz=w200",cr:false},
+  {roll:"2502010",name:"Abrar Faiyaz",section:"A",phone:"'01970453497",fb:"https://www.facebook.com/share/1CcbaEpj9p/",img:"https://drive.google.com/thumbnail?id=1dP97_lCWT7uWxVcbN7Y27jBLs9vQG_jG&sz=w200",cr:false},
+  {roll:"2502011",name:"Shaiful Islam",section:"A",phone:"01741829915",fb:"https://www.facebook.com/ismam.islam.311",img:"https://drive.google.com/thumbnail?id=1FiPcRwbrxAoFi0oQ5o4zjbUJ6tFZdh3E&sz=w200",cr:false},
+  {roll:"2502012",name:"Md. Ehasanul Haque Shihab",section:"A",phone:"01840096236",fb:"https://www.facebook.com/ehasanulhaqueshihab.7",img:"https://drive.google.com/thumbnail?id=1nB42EkZMLFZXXGrggzuOu0HWNFyQbQGp&sz=w200",cr:false},
+  {roll:"2502013",name:"Md. Abdullah Haque Emon",section:"A",phone:"01314284128",fb:"",img:"https://drive.google.com/thumbnail?id=17ielkbh4On1V-mXZFvSvVeWIzaWXZ5Cv&sz=w200",cr:false},
+  {roll:"2502014",name:"Md. Muhtasin Islam Samin",section:"A",phone:"01794095913",fb:"https://www.facebook.com/share/1HVxhe4Xhz/",img:"https://drive.google.com/thumbnail?id=1XMBQgK8u75IeHL4ATC0rVDpUojLkN4Ts&sz=w200",cr:false},
+  {roll:"2502015",name:"Thasun Haneen",section:"A",phone:"01323360711",fb:"https://www.facebook.com/share/1Xo9fNLHwa/",img:"https://drive.google.com/thumbnail?id=1ZClhXaMhsnlDF-PQdaW_QKyCCa-Q03l0&sz=w200",cr:false},
+  {roll:"2502016",name:"Md. Nusaib-ul Islam",section:"A",phone:"01533859170",fb:"https://www.facebook.com/nazrul.nusaib.5",img:"https://drive.google.com/thumbnail?id=1IVDvPiltEg0WNQwQqhF0P94AmnsixDN4&sz=w200",cr:false},
+  {roll:"2502017",name:"Sakib Ahmed Sojol",section:"A",phone:"01726361448",fb:"https://www.facebook.com/sakib.ahmed.sojol.2024",img:"https://drive.google.com/thumbnail?id=1ieatOzC5nObhf5T9fF--NGTkmCZe26Hd&sz=w200",cr:false},
+  {roll:"2502018",name:"Anupom Chanda Aurgo",section:"A",phone:"01325113269",fb:"https://www.facebook.com/share/1HtW5WCFXr/",img:"https://drive.google.com/thumbnail?id=1Pat63yJ6y8sotu1B_xIp3B_Id3Ieu05I&sz=w200",cr:false},
+  {roll:"2502019",name:"Ekhtiar Uddin Ahmed",section:"A",phone:"01730280161",fb:"https://www.facebook.com/share/1BcaAMXrtT/",img:"https://drive.google.com/thumbnail?id=1A01cx3k69xQi_ymXGAxsTNRkXqwgNW6D&sz=w200",cr:false},
+  {roll:"2502020",name:"Mainul Islam Khan Shahad",section:"A",phone:"01929723578",fb:"https://www.facebook.com/share/1DwQDgVQuE/",img:"https://drive.google.com/thumbnail?id=1QMz62tw2UDSw0gslHnuOrz-57xT8T8RY&sz=w200",cr:false},
+  {roll:"2502021",name:"Md. Mahmud Hasan Mafi",section:"A",phone:"01797747251",fb:"https://www.facebook.com/share/1BkKuuojW1/",img:"https://drive.google.com/thumbnail?id=1n2znGaljTd-wP5zVNXlOqV70ad2bObq8&sz=w200",cr:false},
+  {roll:"2502022",name:"Dipon Mondal",section:"A",phone:"01404371758",fb:"https://www.facebook.com/share/1CxR6pRyKS/",img:"https://drive.google.com/thumbnail?id=1LLu4qggZOyMr0iaam59Qwwtyi4zRtHkh&sz=w200",cr:false},
+  {roll:"2502023",name:"Arafat Islam",section:"A",phone:"01951060095",fb:"https://www.facebook.com/share/1MKHzZwsnM/",img:"https://drive.google.com/thumbnail?id=1y2vyItzsnGiuBjvCnP5daLbBG4aS8jYK&sz=w200",cr:false},
+  {roll:"2502024",name:"Fahimul Habib",section:"A",phone:"01775056059",fb:"https://www.facebook.com/share/18R4rMmKCB/",img:"https://drive.google.com/thumbnail?id=1bZG_Wi4wPhpN5J30X4pcGKp-APO8VzXs&sz=w200",cr:false},
+  {roll:"2502025",name:"Raihan Hossain",section:"A",phone:"01856015367",fb:"https://www.facebook.com/share/1cA1G1d3Si/",img:"https://drive.google.com/thumbnail?id=1VL_oNKT9WD6XH_t06ixhpIyDoHuFgqzR&sz=w200",cr:true},
+  {roll:"2502026",name:"Jubayer Ahmed",section:"A",phone:"01979249600",fb:"https://www.facebook.com/jubayer.ahmed.198344",img:"https://drive.google.com/thumbnail?id=1DjUdVxAPKDqH7mMOm5yDYQ_fuD41h97X&sz=w200",cr:false},
+  {roll:"2502027",name:"Antara Saha",section:"A",phone:"01335276902",fb:"https://www.facebook.com/share/17F6gYWQpM/",img:"https://drive.google.com/thumbnail?id=1EIcPibyekfHnm7UaMGuGrGqbatuMhRQT&sz=w200",cr:false},
+  {roll:"2502028",name:"Ehsanul Kabir",section:"A",phone:"01403799735",fb:"https://www.facebook.com/share/18hQAVjfrQ/",img:"https://drive.google.com/thumbnail?id=1jrPxcAcYqdJY17KIHSuvU2EwHbeLbNzJ&sz=w200",cr:false},
+  {roll:"2502029",name:"Mahid Khan",section:"A",phone:"01707940707",fb:"https://www.facebook.com/share/1EZj8p2ZFz/",img:"https://drive.google.com/thumbnail?id=12S2kbV_SuZTt0q5Q-kW3kvvLfcUiVOTi&sz=w200",cr:false},
+  {roll:"2502030",name:"Pritul Devnath",section:"A",phone:"01712893899",fb:"https://www.facebook.com/share/1K8hkpCAXZ/",img:"https://drive.google.com/thumbnail?id=1Y7eDw7LVvbv23C89e78wd4s7GcUlE9ot&sz=w200",cr:false},
+  {roll:"2502031",name:"Toha Islam",section:"A",phone:"'01784747706",fb:"https://www.facebook.com/touha.islam.56",img:"",cr:false},
+  {roll:"2502032",name:"Farhana Alam",section:"A",phone:"01756408416",fb:"https://www.facebook.com/share/1JjMnUwbpC/",img:"https://drive.google.com/thumbnail?id=1pkkQnnA4nqFKh2vnZ8KnCaWfo7g09Ye2&sz=w200",cr:false},
+  {roll:"2502033",name:"Muntasir Mahbub",section:"A",phone:"01572934615",fb:"https://www.facebook.com/share/18w6htVtZw/",img:"https://drive.google.com/thumbnail?id=1lIlHXyn98LvdkU5Nf1p6J54OxvlXfTzu&sz=w200",cr:false},
+  {roll:"2502034",name:"Md. Naimur Rahman",section:"A",phone:"01979575587",fb:"https://www.facebook.com/share/1CtKb25v8W/",img:"https://drive.google.com/thumbnail?id=1GTDaj10FGA81mFgDkCYAwugrMf035FRF&sz=w200",cr:true},
+  {roll:"2502035",name:"Mahir Mahamud",section:"A",phone:"01331603194",fb:"https://www.facebook.com/profile.php?id=61589479734653",img:"https://drive.google.com/thumbnail?id=1y_HKzHTAZfuXby88lZMHIkygfnwwBA2j&sz=w200",cr:false},
+  {roll:"2502036",name:"Md. Naim Hossain",section:"A",phone:"01586375721",fb:"https://www.facebook.com/NaimHossain2007",img:"https://drive.google.com/thumbnail?id=1oxauVNDVv2-K5c9dLhLCpq7iYAVV6wfb&sz=w200",cr:false},
+  {roll:"2502037",name:"Swarnil Banik",section:"A",phone:"",fb:"https://www.facebook.com/swarnil.banik.2025",img:"https://drive.google.com/thumbnail?id=1hL0ELQobdxMd_CmLW9pPRjriJGbhfhqi&sz=w200",cr:false},
+  {roll:"2502038",name:"Tasin Ahammed Rafi",section:"A",phone:"01330164888",fb:"https://www.facebook.com/share/1C8U3M5a3Z/",img:"https://drive.google.com/thumbnail?id=11ZUwolT-HEmDvfgpQB-vFfVwzlf0E7Id&sz=w200",cr:false},
+  {roll:"2502039",name:"Noor Rejwan Khan Omi",section:"A",phone:"01741077784",fb:"https://www.facebook.com/share/1BZyUfgMur/",img:"https://drive.google.com/thumbnail?id=1AAIPI6S_4EC3HrsocBSyNVoYM072fZjg&sz=w200",cr:false},
+  {roll:"2502040",name:"Toufica Jahan",section:"A",phone:"01805735876",fb:"https://www.facebook.com/share/1BZkty7obx/",img:"https://drive.google.com/thumbnail?id=1PVl6zrsW3hTpGwPpAnVQOVWmPY32qOka&sz=w200",cr:false},
+  {roll:"2502041",name:"Md. Tarek",section:"A",phone:"01729492410",fb:"https://www.facebook.com/md.tarek.sheikh.436852",img:"https://drive.google.com/thumbnail?id=1KPiJ3IXO0DYm9OC_QAoGa4MPJtOuhfA8&sz=w200",cr:false},
+  {roll:"2502042",name:"Rafyet Ullah Sani",section:"A",phone:"01640571145",fb:"https://www.facebook.com/share/1JBa5pW6np/",img:"https://drive.google.com/thumbnail?id=15RXYsbVNWM_ppq1W61iYi_q3j38KLFr4&sz=w200",cr:false},
+  {roll:"2502043",name:"Souvik Acharjee",section:"A",phone:"01842241303",fb:"https://www.facebook.com/share/1CxeEHj6Vs/",img:"https://drive.google.com/thumbnail?id=1eHdTRhzA1HqWB9LaC2iDS5cKruEmTu3N&sz=w200",cr:false},
+  {roll:"2502044",name:"Md. Hasan Mahamud",section:"A",phone:"01731887477",fb:"https://www.facebook.com/share/18ouxHsE9Z/",img:"https://drive.google.com/thumbnail?id=1RjCHozAZeq8eMZM_ylCXi_2BqWcTSSbl&sz=w200",cr:false},
+  {roll:"2502045",name:"Tanvir Mahtab Apurba",section:"A",phone:"01834193966",fb:"https://www.facebook.com/share/199ctqXXcA/",img:"https://drive.google.com/thumbnail?id=1LzlbOw5S7m_Ss4_d4_qnkOjMZE8Ngnqs&sz=w200",cr:false},
+  {roll:"2502046",name:"Md. Sifat Ahmed",section:"A",phone:"01999658747",fb:"https://www.facebook.com/share/1E7sN67Kc1/",img:"https://drive.google.com/thumbnail?id=1YsZJdDxyNAYMq8MuU4lbZR3DTaQirSQn&sz=w200",cr:false},
+  {roll:"2502047",name:"Tauhidul Islam Tamim",section:"A",phone:"01321062937",fb:"https://www.facebook.com/share/17kxnU4kHS/",img:"https://drive.google.com/thumbnail?id=1lFVlQXV0b-VuZv8TUrPmqnQ24bqRtjrK&sz=w200",cr:false},
+  {roll:"2502048",name:"Md. Masrur Irtisum",section:"A",phone:"01773332722",fb:"https://www.facebook.com/share/1BwU5KWU2b/",img:"https://drive.google.com/thumbnail?id=1TfMUntgiBp3GwwjEYY9IPRb56ybi9GFR&sz=w200",cr:false},
+  {roll:"2502049",name:"Md. Mahdi Hasan",section:"A",phone:"",fb:"https://www.facebook.com/mahdi.hasan.799010",img:"https://drive.google.com/thumbnail?id=1iiZCq9jYy-AeY-M7fnqh3lygB-dJx8YG&sz=w200",cr:false},
+  {roll:"2502050",name:"Fardin Sardar",section:"A",phone:"01312372188",fb:"https://www.facebook.com/share/1BXWdtcYGx/",img:"https://drive.google.com/thumbnail?id=16pdc9xJRFskKAerbBhv7I4eo1NFQTjXv&sz=w200",cr:false},
+  {roll:"2502051",name:"Md. Fayyaz Zaman",section:"A",phone:"01314491969",fb:"https://www.facebook.com/fayyaz.zaman139",img:"https://drive.google.com/thumbnail?id=1sI-uBHIihFbGprmdKosxgaqzcY0RQa1c&sz=w200",cr:false},
+  {roll:"2502052",name:"Alif Mahmud",section:"A",phone:"01752320972",fb:"https://www.facebook.com/share/1AxDzCCGfN/",img:"https://drive.google.com/thumbnail?id=1dDa1sPj2vOk2kQ6SCx7xf761KnjS6EDq&sz=w200",cr:false},
+  {roll:"2502053",name:"Sunbin Ahmed",section:"A",phone:"01792522233",fb:"https://www.facebook.com/share/1CggbuLogA/",img:"https://drive.google.com/thumbnail?id=1r_LP1ZSYZItCHnRQBlCaoXLYu2BfS4gk&sz=w200",cr:false},
+  {roll:"2502054",name:"Abdullah",section:"A",phone:"01976741033",fb:"https://www.facebook.com/md.abdullah.97699",img:"https://drive.google.com/thumbnail?id=1zzL5C9W_iMm0vj5LT2o2MvxUYFoUoY21&sz=w200",cr:false},
+  {roll:"2502055",name:"Md. Mushfique Sad Akib",section:"A",phone:"01540306545",fb:"https://www.facebook.com/share/1CW6bC4rQp/",img:"https://drive.google.com/thumbnail?id=1sRYUM0AASHzIB8J85n2xLBHJ7AXlxQ-W&sz=w200",cr:false},
+  {roll:"2502056",name:"Ponuel Pritom Roy",section:"A",phone:"01570272878",fb:"https://www.facebook.com/share/1LsCMH7H5n/",img:"https://drive.google.com/thumbnail?id=1n5B4sWArY6wWu2JZHMRzq1ds9gwI_YEC&sz=w200",cr:false},
+  {roll:"2502057",name:"Md. Masum Al Imran",section:"A",phone:"01572953455",fb:"https://www.facebook.com/share/19Nzxd88am/",img:"https://drive.google.com/thumbnail?id=1Mcfp0mRUgnwuPSscH7mQT7CtlayvjLyZ&sz=w200",cr:false},
+  {roll:"2502058",name:"Junaid Jamal Tasin",section:"A",phone:"01919540432",fb:"https://www.facebook.com/muhammad.tasin.73132",img:"https://drive.google.com/thumbnail?id=1nX2_2IHpQ2aXLwqTysNsvVcR9-morGZD&sz=w200",cr:false},
+  {roll:"2502059",name:"Md. Yasin Kazi",section:"A",phone:"01308474174",fb:"https://www.facebook.com/share/17kwoEj2kK/",img:"https://drive.google.com/thumbnail?id=1Day7jo86CYNUmHgqBSuc6tROgDsl5Db4&sz=w200",cr:false},
+  {roll:"2502060",name:"Taofiqul Islam Rupom",section:"A",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502061",name:"S. M. Iftekhar Alam Tanvir",section:"B",phone:"01914412921",fb:"https://www.facebook.com/share/1FFzhPMAh6/",img:"https://drive.google.com/thumbnail?id=1ab1KO9SSx2pthdlH3LKOmHOgW6Ark1Do&sz=w200",cr:false},
+  {roll:"2502062",name:"Abdullah Al Aziz",section:"B",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502063",name:"Afiah Mubashshirah",section:"B",phone:"01753102162",fb:"https://www.facebook.com/AfiJeon",img:"https://drive.google.com/thumbnail?id=1RgGo9VY71dqa9P0yXUwQPP__sAFI34ZQ&sz=w200",cr:false},
+  {roll:"2502064",name:"Sumita Binte Habib Sneha",section:"B",phone:"01771442417",fb:"https://www.facebook.com/share/17mCgWwFJ7/",img:"https://drive.google.com/thumbnail?id=1fe5cTnvb_5bUpjfiBWGJGHSfG4oSXb3U&sz=w200",cr:false},
+  {roll:"2502065",name:"Md. Saleh Uddin Zobayer",section:"B",phone:"01723611342",fb:"https://www.facebook.com/share/1GZDKEH2XA/",img:"https://drive.google.com/thumbnail?id=1OZIWxA33rtUcX9lAPDy3FnNaHpX_lcHL&sz=w200",cr:false},
+  {roll:"2502066",name:"Md. All Emran",section:"B",phone:"01737832350",fb:"https://www.facebook.com/share/1HUAqEFS1m/",img:"https://drive.google.com/thumbnail?id=1ZMKfVed5PYX-T-RfvbqrO_G1ADLKk8Y6&sz=w200",cr:false},
+  {roll:"2502067",name:"Zahedur Rafsan",section:"B",phone:"01826428909",fb:"https://www.facebook.com/share/194ZkfRU9b/",img:"https://drive.google.com/thumbnail?id=1x_OTyFhEIL6H2YgdRPPMZpV1BNCEMBPe&sz=w200",cr:false},
+  {roll:"2502068",name:"Reyad Ahmed Sarker",section:"B",phone:"01912720082",fb:"https://www.facebook.com/mdreyad.ahmed.353",img:"https://drive.google.com/thumbnail?id=1_i2yD_bOi-GjLLYewnLHYZlPVK3kgtJD&sz=w200",cr:false},
+  {roll:"2502069",name:"Nazir Shavry Rushad",section:"B",phone:"01672543008",fb:"https://www.facebook.com/nazir.rushad.2024",img:"https://drive.google.com/thumbnail?id=18QPK1eNQQOpHv4VCP3YQo2sW-BCuew1-&sz=w200",cr:false},
+  {roll:"2502070",name:"Jaowad Sadman Chowdhury",section:"B",phone:"01816454534",fb:"https://www.facebook.com/share/1ELqF5LUGc/",img:"https://drive.google.com/thumbnail?id=1IwWtSu8a7EZ8dUcfjmOPxs_NK9QPBMJN&sz=w200",cr:false},
+  {roll:"2502071",name:"Saad Gifary",section:"B",phone:"01609867687",fb:"https://www.facebook.com/share/1NvbfAcqCq/",img:"https://drive.google.com/thumbnail?id=1GW37ZYgLIDrYpZkrTI-RXfb-rG7KEay_&sz=w200",cr:false},
+  {roll:"2502072",name:"Md. Masrafi Rahman Jihad",section:"B",phone:"01767897470",fb:"https://www.facebook.com/share/1H6AgLUNkc/",img:"https://drive.google.com/thumbnail?id=10Zn-TP_cUhsoXNJstFfvis5Dcy3SFfsI&sz=w200",cr:false},
+  {roll:"2502073",name:"Istiaque Ahmmad Tusher",section:"B",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502074",name:"Md. Arif Hasnat Mahin",section:"B",phone:"01710464631",fb:"https://www.facebook.com/share/1EdxibMcDA/",img:"https://drive.google.com/thumbnail?id=1HEdIX2o1JwxKvtm8Ro56Lh3P9_rmtaJd&sz=w200",cr:false},
+  {roll:"2502075",name:"Md. Al-Amin Khan",section:"B",phone:"01551058376",fb:"https://www.facebook.com/alamin.iasinarafat",img:"https://drive.google.com/thumbnail?id=1ufS5_iof4s-9JFJZcsX3a7yw1_pUYd8_&sz=w200",cr:false},
+  {roll:"2502076",name:"Muhaimin Islam Ahon",section:"B",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502077",name:"Sajedul Alam Sadi",section:"B",phone:"01876118020",fb:"https://www.facebook.com/share/1L2Wy8q9Ev/",img:"https://drive.google.com/thumbnail?id=1sBTyaGf6y_cWSiv1x_WTNjpJe2xpr-Sh&sz=w200",cr:false},
+  {roll:"2502078",name:"Adittya Biswas",section:"B",phone:"01624767714",fb:"https://www.facebook.com/share/1DAiZDV3rG/",img:"https://drive.google.com/thumbnail?id=1n_sLqPuBJG9DZr3YbLEF8sz4MJDT513k&sz=w200",cr:false},
+  {roll:"2502079",name:"Md. Alamin Hossain",section:"B",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502080",name:"Anamul Huque Sourov",section:"B",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502081",name:"Afif Ahmed",section:"B",phone:"01744747045",fb:"https://www.facebook.com/fake.afif",img:"https://drive.google.com/thumbnail?id=1gDMDyFt5MWcXJyYMfqO26agYYDmwi7fv&sz=w200",cr:false},
+  {roll:"2502082",name:"Md. Parvez Miah",section:"B",phone:"01972438165",fb:"https://www.facebook.com/share/1F9iherq44/",img:"https://drive.google.com/thumbnail?id=12wo8lL6sUvXk4r5wHHJ6vn4G4GznGL-g&sz=w200",cr:false},
+  {roll:"2502083",name:"Aorpon Roy",section:"B",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502084",name:"Md. Zahid Hassan",section:"B",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502085",name:"Nabendu Mondal",section:"B",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502086",name:"Md. Farhan Saba",section:"B",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502087",name:"Md. Sohan Alam Badhon",section:"B",phone:"01835531264",fb:"https://www.facebook.com/md.badhon.800499",img:"https://drive.google.com/thumbnail?id=1E6xuPka78JqgyL01ND9a-KmLsJ2dlk8F&sz=w200",cr:false},
+  {roll:"2502088",name:"Aroup Devnath",section:"B",phone:"01619531169",fb:"https://www.facebook.com/aroupdebnath33",img:"https://drive.google.com/thumbnail?id=1QSB-yGSaavab03gfF6y17vWFJhY_N26j&sz=w200",cr:false},
+  {roll:"2502089",name:"Mahmudul Sikder Labib",section:"B",phone:"01711133206",fb:"https://www.facebook.com/share/1ExCes593k/",img:"https://drive.google.com/thumbnail?id=178uiLtYnkuGdn0zny5Q_qbBg9Yj94gJz&sz=w200",cr:false},
+  {roll:"2502090",name:"Md. Shamsuzzaman Patowari",section:"B",phone:"01768094784",fb:"https://www.facebook.com/shamsuzzaman.patowari",img:"https://drive.google.com/thumbnail?id=17jb0GUnK5TJ7r9e_RvNDkR4kksY2SZm9&sz=w200",cr:false},
+  {roll:"2502091",name:"Md. Shadhin Hossain",section:"B",phone:"01521575047",fb:"https://www.facebook.com/share/1BEcbjxY6H/",img:"https://drive.google.com/thumbnail?id=1kP9i2QuSsK59dmCWA2J3ruY4ehLQear6&sz=w200",cr:false},
+  {roll:"2502092",name:"Ahnaf Akif",section:"B",phone:"01872550698",fb:"https://www.facebook.com/share/1TDiiGGAJP/",img:"https://drive.google.com/thumbnail?id=1gKUl2w9qmsjCjXmHG6LzWiPrLEv_37ft&sz=w200",cr:false},
+  {roll:"2502093",name:"Ahnaf Iqbal",section:"B",phone:"01522121212",fb:"https://www.facebook.com/share/1HcxfpFa6C/",img:"https://drive.google.com/thumbnail?id=1dO9LS0-eSV8UZix3Gl-dx8TTLeoLj0bN&sz=w200",cr:false},
+  {roll:"2502094",name:"Lamim Mahmud Borno",section:"B",phone:"01570260838",fb:"https://www.facebook.com/share/1DKgVH2JWS/",img:"https://drive.google.com/thumbnail?id=1P-KlWDWjG_yqyrTgbNmUXZn6hguh9X63&sz=w200",cr:false},
+  {roll:"2502095",name:"Kazi Ahnaf Mustafiz",section:"B",phone:"01946448523",fb:"https://www.facebook.com/kazi.ahnaf.3760",img:"https://drive.google.com/thumbnail?id=1qXvoSNiyYQAtNAtMvJeoaVFQaFaWtNWn&sz=w200",cr:false},
+  {roll:"2502096",name:"Himel Sarker",section:"B",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502097",name:"Kazi Sayeed Ahsan",section:"B",phone:"01634394953",fb:"https://www.facebook.com/share/18vC719CrP/",img:"https://drive.google.com/thumbnail?id=1pLzRIarcKKvFZARelOQNcD5_fXq2WCCK&sz=w200",cr:false},
+  {roll:"2502098",name:"Amrit Roy",section:"B",phone:"01855972537",fb:"https://www.facebook.com/share/1D1YA5UnzV/",img:"https://drive.google.com/thumbnail?id=1xE8mRDHVrsA_bQChed20aVhwvUahdVWz&sz=w200",cr:false},
+  {roll:"2502099",name:"Md. Aliar Ahmed",section:"B",phone:"01978203892",fb:"https://www.facebook.com/share/1EeZTPN9gC/",img:"https://drive.google.com/thumbnail?id=1DLsUH_27W-TYf5zAUB_PWGTj9pvAkc-Y&sz=w200",cr:false},
+  {roll:"2502100",name:"Md. Rubel Hossain",section:"B",phone:"01785357384",fb:"https://www.facebook.com/share/1BY8zbFKbG/",img:"https://drive.google.com/thumbnail?id=1qD44sc9lTQG3ztsuOJPp4R4uwdbTH0mt&sz=w200",cr:false},
+  {roll:"2502101",name:"Mujakkir Hossain",section:"B",phone:"01780724820",fb:"https://www.facebook.com/share/1Jch7M7SEE/",img:"https://drive.google.com/thumbnail?id=1RZ-ewLTWAAfYBhENz8O-HvT7xisvApqj&sz=w200",cr:false},
+  {roll:"2502102",name:"Md. Nahian Islam",section:"B",phone:"01410508158",fb:"https://www.facebook.com/nahian.islam.1232",img:"https://drive.google.com/thumbnail?id=198b2UfZsG1z-Iz_OpVYwrweeoUdTBRoV&sz=w200",cr:false},
+  {roll:"2502103",name:"Afia Farzana Khan Pritha",section:"B",phone:"01318242315",fb:"https://www.facebook.com/afiafarzanakhan",img:"https://drive.google.com/thumbnail?id=1-0lTZHfiWd53tcHI_dDnJ9h4SNrGKrnE&sz=w200",cr:true},
+  {roll:"2502104",name:"Md. Iftikhar Oliullah",section:"B",phone:"01572932078",fb:"https://www.facebook.com/share/1D8TW7SM8R/",img:"https://drive.google.com/thumbnail?id=1nmBUgA2dTImBcp6PHx1vuQ6nGp9X-NQc&sz=w200",cr:false},
+  {roll:"2502105",name:"Abdus Samad",section:"B",phone:"01608523739",fb:"https://www.facebook.com/profile.php?id=61581279350102",img:"https://drive.google.com/thumbnail?id=1sFXUZ_9Hq1N0DCaEuqApLMLDCADifJfB&sz=w200",cr:false},
+  {roll:"2502106",name:"Abdur Rahim",section:"B",phone:"01760236706",fb:"https://www.facebook.com/share/1HEp9Q9MC6/",img:"https://drive.google.com/thumbnail?id=1UqkXqLwkpEbcjrIeuxwYhnoXacUkZDnY&sz=w200",cr:false},
+  {roll:"2502107",name:"Shahriar Kuddus",section:"B",phone:"01309693547",fb:"https://www.facebook.com/shahriar.kuddus.96",img:"https://drive.google.com/thumbnail?id=1gB9kDA4RZ7ZYFJtp1xZ1Jykmr9G0PKVR&sz=w200",cr:false},
+  {roll:"2502108",name:"Md. Mahmudur Rahman",section:"B",phone:"01952786473",fb:"https://www.facebook.com/Rahi2736M/",img:"https://drive.google.com/thumbnail?id=16jAQ6_1TKYpuBFhJXeitwjYBkMHkss_p&sz=w200",cr:false},
+  {roll:"2502109",name:"Shadhin Kumar Shikder",section:"B",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502110",name:"Fabiha Monir Prathama",section:"B",phone:"01878314810",fb:"https://www.facebook.com/share/1E9eSxM3M2/",img:"https://drive.google.com/thumbnail?id=1EDX1Ol936C1e9uVDWwTu3xN81QpkssiP&sz=w200",cr:false},
+  {roll:"2502111",name:"Md. Hasibul Hossain",section:"B",phone:"01734631216",fb:"https://www.facebook.com/share/1LLft3ddit/",img:"https://drive.google.com/thumbnail?id=1xO-j5cqgITORmh9y44om4jjRzDeA6s9s&sz=w200",cr:false},
+  {roll:"2502112",name:"Md. Rahik Tanha",section:"B",phone:"01306400891",fb:"https://www.facebook.com/share/18tbGjhLJb/",img:"https://drive.google.com/thumbnail?id=1GaAHyItJx90RfpEgIQYKfVjIzVOgEnCL&sz=w200",cr:false},
+  {roll:"2502113",name:"Md. Nafi-ul-Islam",section:"B",phone:"01843361317",fb:"https://www.facebook.com/share/1A4APfKU9v/",img:"https://drive.google.com/thumbnail?id=1_yDpEfYpyp3aFN8N610i-GGwLiQdZmfH&sz=w200",cr:false},
+  {roll:"2502114",name:"Mahir Ahnaf Islam Mugdho",section:"B",phone:"01907449261",fb:"https://www.facebook.com/share/1E62uwJndQ/",img:"https://drive.google.com/thumbnail?id=1njVMaG5phWmN7zhdQBgq1pcVDUD6tHAd&sz=w200",cr:false},
+  {roll:"2502115",name:"Tafsan Islam Sanji",section:"B",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502116",name:"Md. Golam Kibriya",section:"B",phone:"01885612082",fb:"https://www.facebook.com/mdgolam.kibriya.01",img:"https://drive.google.com/thumbnail?id=1PDmyl2LU5qbofeWPT7CCfkZ7uztRsdpU&sz=w200",cr:false},
+  {roll:"2502117",name:"Umme Atika",section:"B",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502118",name:"Md. Mahafuj Ahamed Mafi",section:"B",phone:"01309685730",fb:"https://www.facebook.com/profile.php?id=100082642333983",img:"https://drive.google.com/thumbnail?id=1MOrL4BT1VNaiL0Ji6oWV_g9A-76Ympx6&sz=w200",cr:false},
+  {roll:"2502119",name:"Shree Kashob Dev",section:"B",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502120",name:"Mahfuja Fariha",section:"B",phone:"01301135819",fb:"https://www.facebook.com/share/1EEhw656Xn/",img:"https://drive.google.com/thumbnail?id=1iwSSDbCyW55AKpf1lxibg0sxRHZj2cBq&sz=w200",cr:false},
+  {roll:"2502121",name:"Rijwan Ahmad",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502122",name:"Abu Sufian",section:"C",phone:"01300237322",fb:"https://www.facebook.com/su.fi.an.422154",img:"https://drive.google.com/thumbnail?id=11EKvzIz6pEu5zvl7JIiDvSJAvCnWAISP&sz=w200",cr:false},
+  {roll:"2502123",name:"Taief Bin Mohsin",section:"C",phone:"01851308454",fb:"https://www.facebook.com/share/192RjyEhSw/",img:"https://drive.google.com/thumbnail?id=1pdWIHcmOlafNjUi7jhG6vgIUEPMe8Tlh&sz=w200",cr:false},
+  {roll:"2502124",name:"Md. Fahim Sadik",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502125",name:"Athai Habiba",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502126",name:"Mst. Anika Tahsin",section:"C",phone:"01516594859",fb:"https://www.facebook.com/share/1DZZR25W5c/",img:"https://drive.google.com/thumbnail?id=1jUnM_9KEoMZ1_86Uj-FEDwTSCd_kYmSn&sz=w200",cr:false},
+  {roll:"2502127",name:"Kazi Nafizur Rahman",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502128",name:"Iftekhar Al Sami",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502129",name:"Nowsen Motin Nowreen",section:"C",phone:"01610744577",fb:"https://www.facebook.com/share/191QavdfyM/",img:"https://drive.google.com/thumbnail?id=1vNtUQMzQj5dVtcAfPLomw6Co8e2ZRu52&sz=w200",cr:false},
+  {roll:"2502130",name:"Md. Taseen Mosharof",section:"C",phone:"01575818699",fb:"https://www.facebook.com/share/1FCMPzLsGc/",img:"https://drive.google.com/thumbnail?id=1Qpj-0KxDEdyxGcFBkQtkaHd1Rx5p1BEN&sz=w200",cr:false},
+  {roll:"2502131",name:"Md. Mehedi Hasan Soikot",section:"C",phone:"",fb:"",img:"",cr:true},
+  {roll:"2502132",name:"Shahedul Alam Tahasin",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502133",name:"Md. Mostafizur Sarker",section:"C",phone:"01780062800",fb:"https://www.facebook.com/share/1EYkJPATgY/",img:"https://drive.google.com/thumbnail?id=1hm0Z_R8dUYXNJuAT2Zt0SCwQJU2f_G17&sz=w200",cr:false},
+  {roll:"2502134",name:"Shuvajit Dwari",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502135",name:"Md. Nazmul Hossain Mollik",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502136",name:"Khairul Amin Siddiqi",section:"C",phone:"01764632185",fb:"https://www.facebook.com/share/1KTz8oxj1K/",img:"https://drive.google.com/thumbnail?id=12z1ekd58sd53potYyiJ004QdJuf3rXyA&sz=w200",cr:false},
+  {roll:"2502137",name:"Hamim Al Wahid Awon",section:"C",phone:"01865474908",fb:"https://www.facebook.com/share/1LZ5JPVZhD/",img:"https://drive.google.com/thumbnail?id=1pjlpKA_-YJrfR_Y2Nz2IzhV9556HQCet&sz=w200",cr:false},
+  {roll:"2502138",name:"Md. Nafis Iqbal",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502139",name:"Takian Ali Khan Mahadi",section:"C",phone:"01992702386",fb:"https://www.facebook.com/takian.tazrian",img:"https://drive.google.com/thumbnail?id=1jfiS93fCTeLILwDAf26HeGrZ03y_Dc9m&sz=w200",cr:false},
+  {roll:"2502140",name:"Md. Sabbir Ahmmad",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502141",name:"Spondon Chakraborty Utsho",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502142",name:"Ashraful Islam Tonoy",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502143",name:"Shams Ehsan",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502144",name:"Md. Abdullah Al Shafi",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502145",name:"Sabbir Hossain Saif",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502146",name:"Md. Daiyan Sajjad Shifat",section:"C",phone:"01339928179",fb:"https://www.facebook.com/share/1CBXjJ7xsc/",img:"https://drive.google.com/thumbnail?id=1RqXuQxXLYRWobFIWcuRwYhI8nioBAuBt&sz=w200",cr:false},
+  {roll:"2502147",name:"Manish Kanti Das",section:"C",phone:"01576662626",fb:"https://www.facebook.com/share/14eFugQsU4w/",img:"https://drive.google.com/thumbnail?id=1yRDRDJmx5i4_QDjhKHb-Jjdkwd3BoaKi&sz=w200",cr:false},
+  {roll:"2502148",name:"Md. Adnan Mahi",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502149",name:"Md. Rupom Khan",section:"C",phone:"01329890572",fb:"https://www.facebook.com/rupom.khan.5030",img:"https://drive.google.com/thumbnail?id=1bTpYPwlbB9OUkKFbMKKK96KdWBndG8ku&sz=w200",cr:false},
+  {roll:"2502150",name:"Shanto Dey",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502151",name:"Md. Sadman Sakib",section:"C",phone:"01346106997",fb:"https://www.facebook.com/share/1EEs1XzdbW/",img:"https://drive.google.com/thumbnail?id=1BO1hce56UtPf8p1GKK25JX12R5MfBGm_&sz=w200",cr:false},
+  {roll:"2502152",name:"Afnanul Huda Afnan",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502153",name:"K. M. Nazmus Sakib Seum",section:"C",phone:"01734838412",fb:"https://www.facebook.com/share/1E7sixjPU8/",img:"https://drive.google.com/thumbnail?id=1pZsOgEhVdSVqm7Y-NY1ga25ncTqveEbc&sz=w200",cr:false},
+  {roll:"2502154",name:"Avik Bhattacharjee",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502155",name:"Tahmid Shuvo",section:"C",phone:"01939671764",fb:"https://www.facebook.com/tahmid.shuvo.71",img:"https://drive.google.com/thumbnail?id=1mooX9Y-BBNL3I8veQE0xENZoa3_5L5Pa&sz=w200",cr:false},
+  {roll:"2502156",name:"Md. Mursalin Sheikh",section:"C",phone:"01985117129",fb:"https://www.facebook.com/share/17Z4qjBhJT/",img:"https://drive.google.com/thumbnail?id=1xC3TtLsfGso2pZSm0GZl60SQgvWCCl80&sz=w200",cr:false},
+  {roll:"2502157",name:"Tanvir Rahman Sakib",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502158",name:"Q. A. M. Shahriar Aranya",section:"C",phone:"01711943319",fb:"https://www.facebook.com/share/1G4cqS3wzj/",img:"https://drive.google.com/thumbnail?id=1EwcijRO2tr6-vWPNJTQXYlgYRtRZ1LrX&sz=w200",cr:false},
+  {roll:"2502159",name:"Jahid Ekbal Jehan",section:"C",phone:"01763835202",fb:"https://www.facebook.com/share/1DyKou3U3H/",img:"https://drive.google.com/thumbnail?id=1oWyIs7e8ifjfFrKkr8gH5-XtLho615en&sz=w200",cr:false},
+  {roll:"2502160",name:"Md. Mashfir Rishan Chowdhury",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502161",name:"Tahmid Wadi",section:"C",phone:"01772219523",fb:"https://www.facebook.com/tahmid.wadi/",img:"https://drive.google.com/thumbnail?id=1C63Zrre7vEdacw_8u9-qjvA1FnyAovkE&sz=w200",cr:false},
+  {roll:"2502162",name:"Apon Saha",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502163",name:"Swapno Barshan Das",section:"C",phone:"01956315725",fb:"https://www.facebook.com/share/1Hp7HAFgJz/",img:"https://drive.google.com/thumbnail?id=1bzxXfoMQfRbBi9EfZvbIbYssMHHBEFPy&sz=w200",cr:false},
+  {roll:"2502164",name:"Md. Arif Hasnat Sahib",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502165",name:"Al Musabbir Hossain",section:"C",phone:"",fb:"https://www.facebook.com/musabbir24/",img:"https://drive.google.com/thumbnail?id=1HC5NGlbJkGUeXdH10pf3VZt0B26FT8Sv&sz=w200",cr:true},
+  {roll:"2502166",name:"Mohammad Mahir Labib",section:"C",phone:"01937426859",fb:"https://www.facebook.com/share/18xP8THevK/",img:"https://drive.google.com/thumbnail?id=1sJp5WcLROiXVGqq82rwgXWmwbbXL3wIO&sz=w200",cr:false},
+  {roll:"2502167",name:"Radiat Rahman",section:"C",phone:"01581494847",fb:"https://www.facebook.com/radiat.rahman.31",img:"https://drive.google.com/thumbnail?id=1bFP8m-8zypCUHzOdL6MdA3tggxXhoQkW&sz=w200",cr:false},
+  {roll:"2502168",name:"Ahanaf Rayeed",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502169",name:"Md. Tanzim Sazid Bhuiyan",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502170",name:"Md. Rakib Khan",section:"C",phone:"01752810645",fb:"https://www.facebook.com/share/195L2QbY7b/",img:"https://drive.google.com/thumbnail?id=1amgn01oGa4kdwzXt06oFvmmue3DOToEQ&sz=w200",cr:false},
+  {roll:"2502171",name:"Md. Samin Yeasar Abid",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502172",name:"Moontaha Zaman Muna",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502173",name:"Khayrul Alam Ratul",section:"C",phone:"01856360740",fb:"https://www.facebook.com/share/1GX2Ex4hME/",img:"https://drive.google.com/thumbnail?id=15kBAiuwW3xHPPF5oNSDuzUi0Ij-ljHux&sz=w200",cr:false},
+  {roll:"2502174",name:"Md Nurul Afsar Nihal",section:"C",phone:"01738926101",fb:"https://www.facebook.com/nurul.afsar.neehal",img:"https://drive.google.com/thumbnail?id=1KJiCsVSgyx4kjil-5RmPMR0OgJgavImN&sz=w200",cr:false},
+  {roll:"2502175",name:"Md. Mehedi Hasan",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502176",name:"Soikat Chowdhury",section:"C",phone:"01591147035",fb:"https://www.facebook.com/soikat.chowdhury.946",img:"https://drive.google.com/thumbnail?id=1ivgbgSVYJObndgAKKwQ_R6pfJ5Sm7bF0&sz=w200",cr:false},
+  {roll:"2502177",name:"Riazur Rahman Labib",section:"C",phone:"01345830483",fb:"https://www.facebook.com/share/1A5U8DngFY/",img:"https://drive.google.com/thumbnail?id=1frAS6jPeZ5fHWtSnoKMtQ0F3IlI1gGje&sz=w200",cr:false},
+  {roll:"2502178",name:"Rahib Irtiz Bhuiyan",section:"C",phone:"01713092448",fb:"https://www.facebook.com/share/1CZdhXfrnN/",img:"https://drive.google.com/thumbnail?id=1MxxcGIvKpXYq-jaaAS-d0EECkjXmz5rh&sz=w200",cr:false},
+  {roll:"2502179",name:"Md. Arian Rahman",section:"C",phone:"",fb:"",img:"",cr:false},
+  {roll:"2502180",name:"Md. Jahurul Islam Tushar",section:"C",phone:"01304462615",fb:"https://www.facebook.com/share/1H4Eoyqknf/",img:"https://drive.google.com/thumbnail?id=1ZAmNzzw8XE4fvF1w7z0dzm_5e8ZMJV5U&sz=w200",cr:false},
+];
+
+// ======================================================
+// RENDER STUDENTS
+// ======================================================
+const avColors=['av0','av1','av2','av3','av4'];
+function getInitials(n){
+  const skip=['Md.','Mst.','S.','M.','K.','Q.','A.','G.','Al'];
+  const p=n.split(' ').filter(w=>w.length>1&&!skip.includes(w));
+  return p.length>=2?(p[0][0]+p[1][0]).toUpperCase():n.slice(0,2).toUpperCase();
+}
+function renderStudents(list){
+  const g=document.getElementById('studentsGrid');
+  g.innerHTML='';
+  list.forEach((s,i)=>{
+    const d=document.createElement('div');
+    d.className='stu-card'+(s.cr?' cr-card':'');
+    const avClass=s.cr?'av-cr':avColors[i%5];
+    const fbBtn=s.fb?`<a class="stu-social-btn fb" href="${s.fb}" target="_blank" title="Facebook">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+    </a>`:`<span class="stu-social-btn fb" style="opacity:0.3;cursor:default;" title="Facebook N/A">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+    </span>`;
+    const callBtn=s.phone?`<a class="stu-social-btn call" href="tel:${s.phone}" title="Call ${s.phone}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.17 1.18 2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.17 6.17l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+    </a>`:`<span class="stu-social-btn call" style="opacity:0.3;cursor:default;" title="Phone N/A">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.17 1.18 2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.17 6.17l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+    </span>`;
+    d.innerHTML=`
+      <div class="stu-avatar ${avClass}">
+        ${s.img?`<img src="${s.img}" alt="${s.name}" onerror="this.style.display='none'">`:''}
+        ${s.cr?'<span class="cr-crown" style="z-index:2;">👑</span>':''}
+        <span class="av-initials">${s.img?'':getInitials(s.name)}</span>
+      </div>
+      ${s.cr?'<div class="cr-badge">★ CR</div>':''}
+      <div class="stu-name">${s.name}</div>
+      <div class="stu-roll">Roll: ${s.roll}</div>
+      <div class="stu-socials">${fbBtn}${callBtn}</div>
+    `;
+    g.appendChild(d);
+  });
+  document.getElementById('stuCount').textContent=list.length+' Students';
+}
+renderStudents(students);
+
+function filterSection(sec,btn){
+  document.querySelectorAll('.sec-filter').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderStudents(sec==='ALL'?students:students.filter(s=>s.section===sec));
+}
+
+// ======================================================
+// TAB SWITCHING
+// ======================================================
+function switchTab(id,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  document.getElementById('searchInput').value='';
+}
+
+// ======================================================
+// SEARCH
+// ======================================================
+function doSearch(){
+  const q=document.getElementById('searchInput').value.toLowerCase().trim();
+  const act=document.querySelector('.section.active').id;
+  if(act==='sec-family'){
+    renderStudents(q?students.filter(s=>s.name.toLowerCase().includes(q)||s.roll.includes(q)):students);
+    document.querySelectorAll('.sec-filter').forEach((b,i)=>b.classList.toggle('active',i===0));
+  }
+}
+document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
+
+// ======================================================
+// CANVAS BACKGROUND
+// ======================================================
+const canvas=document.getElementById('bgCanvas');
+const ctx=canvas.getContext('2d');
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+resize();
+window.addEventListener('resize',resize);
+const pts=Array.from({length:55},()=>({x:Math.random()*3000,y:Math.random()*1500,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,r:Math.random()*1.4+.4,c:['rgba(0,212,255,','rgba(124,58,237,','rgba(249,115,22,'][Math.floor(Math.random()*3)]}));
+class Gear{constructor(){this.x=Math.random()*window.innerWidth;this.y=Math.random()*window.innerHeight;this.r=18+Math.random()*50;this.teeth=5+Math.floor(Math.random()*9);this.spd=(Math.random()-.5)*.003;this.a=Math.random()*Math.PI*2;this.col=Math.random()>.5?'rgba(0,212,255,':'rgba(124,58,237,';this.alpha=.04+Math.random()*.09;}draw(){ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.a);const t=this.r*.22;ctx.beginPath();for(let i=0;i<this.teeth;i++){const a=(i/this.teeth)*Math.PI*2,a1=a-Math.PI/this.teeth*.45,a2=a+Math.PI/this.teeth*.45;ctx.lineTo(Math.cos(a1)*this.r,Math.sin(a1)*this.r);ctx.lineTo(Math.cos(a1)*(this.r+t),Math.sin(a1)*(this.r+t));ctx.lineTo(Math.cos(a2)*(this.r+t),Math.sin(a2)*(this.r+t));ctx.lineTo(Math.cos(a2)*this.r,Math.sin(a2)*this.r);}ctx.closePath();ctx.strokeStyle=this.col+this.alpha+')';ctx.lineWidth=1.4;ctx.stroke();ctx.beginPath();ctx.arc(0,0,this.r*.3,0,Math.PI*2);ctx.strokeStyle=this.col+this.alpha+')';ctx.stroke();ctx.restore();this.a+=this.spd;}}
+const gears=Array.from({length:7},()=>new Gear());
+class Veh{constructor(type){this.type=type;this.dir=Math.random()>.5?1:-1;this.x=Math.random()*window.innerWidth;this.y=this.initY();this.spd=(0.5+Math.random()*.9)*(type==='jet'?2.2:type==='rocket'?.8:1);this.scale=.45+Math.random()*.5;this.alpha=.07+Math.random()*.12;}initY(){if(this.type==='car')return window.innerHeight*(.6+Math.random()*.3);if(this.type==='rocket')return Math.random()*window.innerHeight*.7;return Math.random()*window.innerHeight*.75;}update(){this.x+=this.spd*this.dir;if(this.dir===1&&this.x>canvas.width+220){this.dir=-1;this.x=canvas.width+200;this.y=this.initY();}if(this.dir===-1&&this.x<-220){this.dir=1;this.x=-200;this.y=this.initY();}}draw(){if(this.type==='jet')drawJet(this.x,this.y,this.scale,this.alpha,this.dir);else if(this.type==='car')drawCar(this.x,this.y,this.scale,this.alpha,this.dir);else if(this.type==='plane')drawPlane(this.x,this.y,this.scale,this.alpha,this.dir);else drawRocket(this.x,this.y,this.scale,this.alpha);}}
+function drawJet(x,y,sc,al,dir){ctx.save();ctx.translate(x,y);ctx.scale(dir*sc,sc);ctx.globalAlpha=al;ctx.strokeStyle='rgba(0,212,255,0.9)';ctx.fillStyle='rgba(0,212,255,0.06)';ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(60,0);ctx.lineTo(15,8);ctx.lineTo(-40,6);ctx.lineTo(-50,0);ctx.lineTo(-40,-6);ctx.lineTo(15,-8);ctx.closePath();ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(12,2);ctx.lineTo(-12,42);ctx.lineTo(-28,42);ctx.lineTo(-4,2);ctx.closePath();ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(12,-2);ctx.lineTo(-12,-42);ctx.lineTo(-28,-42);ctx.lineTo(-4,-2);ctx.closePath();ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(-36,0);ctx.lineTo(-48,16);ctx.lineTo(-44,5);ctx.closePath();ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(-36,0);ctx.lineTo(-48,-16);ctx.lineTo(-44,-5);ctx.closePath();ctx.fill();ctx.stroke();const eg=ctx.createRadialGradient(-52,0,0,-52,0,14);eg.addColorStop(0,'rgba(249,115,22,0.65)');eg.addColorStop(1,'transparent');ctx.beginPath();ctx.arc(-52,0,12,0,Math.PI*2);ctx.fillStyle=eg;ctx.fill();ctx.restore();}
+function drawCar(x,y,sc,al,dir){ctx.save();ctx.translate(x,y);ctx.scale(dir*sc,sc);ctx.globalAlpha=al;ctx.strokeStyle='rgba(249,115,22,0.9)';ctx.fillStyle='rgba(249,115,22,0.07)';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(-50,8);ctx.lineTo(-44,-2);ctx.lineTo(-18,-14);ctx.lineTo(22,-14);ctx.lineTo(42,-4);ctx.lineTo(50,8);ctx.closePath();ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(-16,-14);ctx.lineTo(-6,-22);ctx.lineTo(16,-22);ctx.lineTo(26,-14);ctx.closePath();ctx.fillStyle='rgba(0,212,255,0.08)';ctx.fill();ctx.stroke();[[-32,8],[28,8]].forEach(([wx])=>{ctx.beginPath();ctx.ellipse(wx,12,10,6,0,0,Math.PI*2);ctx.fillStyle='rgba(20,20,40,0.9)';ctx.fill();ctx.strokeStyle='rgba(200,200,255,0.35)';ctx.lineWidth=1;ctx.stroke();});const eg=ctx.createRadialGradient(-54,5,0,-54,5,16);eg.addColorStop(0,'rgba(249,115,22,0.5)');eg.addColorStop(1,'transparent');ctx.beginPath();ctx.arc(-54,5,13,0,Math.PI*2);ctx.fillStyle=eg;ctx.fill();ctx.restore();}
+function drawPlane(x,y,sc,al,dir){ctx.save();ctx.translate(x,y);ctx.scale(dir*sc,sc);ctx.globalAlpha=al;ctx.strokeStyle='rgba(124,58,237,0.9)';ctx.fillStyle='rgba(124,58,237,0.06)';ctx.lineWidth=1.1;ctx.beginPath();ctx.ellipse(0,0,65,10,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(65,0);ctx.lineTo(82,2);ctx.lineTo(82,-2);ctx.closePath();ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(8,0);ctx.lineTo(-8,58);ctx.lineTo(-26,58);ctx.lineTo(-14,0);ctx.closePath();ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(8,0);ctx.lineTo(-8,-58);ctx.lineTo(-26,-58);ctx.lineTo(-14,0);ctx.closePath();ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(-54,0);ctx.lineTo(-68,24);ctx.lineTo(-62,7);ctx.closePath();ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(-54,0);ctx.lineTo(-68,-24);ctx.lineTo(-62,-7);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();}
+function drawRocket(x,y,sc,al){ctx.save();ctx.translate(x,y);ctx.scale(sc,sc);ctx.rotate(-Math.PI/5);ctx.globalAlpha=al;ctx.strokeStyle='rgba(200,220,255,0.8)';ctx.fillStyle='rgba(200,220,255,0.06)';ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(0,-48);ctx.lineTo(10,12);ctx.lineTo(-10,12);ctx.closePath();ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(-10,12);ctx.lineTo(-22,28);ctx.lineTo(-5,16);ctx.closePath();ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(10,12);ctx.lineTo(22,28);ctx.lineTo(5,16);ctx.closePath();ctx.fill();ctx.stroke();const rg=ctx.createRadialGradient(0,30,0,0,30,18);rg.addColorStop(0,'rgba(249,115,22,0.7)');rg.addColorStop(1,'transparent');ctx.beginPath();ctx.arc(0,30,15,0,Math.PI*2);ctx.fillStyle=rg;ctx.fill();ctx.restore();}
+const vehs=[new Veh('jet'),new Veh('jet'),new Veh('jet'),new Veh('plane'),new Veh('plane'),new Veh('car'),new Veh('car'),new Veh('car'),new Veh('rocket'),new Veh('rocket')];
+function animate(){ctx.clearRect(0,0,canvas.width,canvas.height);ctx.strokeStyle='rgba(0,212,255,0.022)';ctx.lineWidth=1;for(let x=0;x<canvas.width;x+=90){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke();}for(let y=0;y<canvas.height;y+=90){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke();}pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=canvas.width;if(p.x>canvas.width)p.x=0;if(p.y<0)p.y=canvas.height;if(p.y>canvas.height)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c+'0.55)';ctx.fill();});gears.forEach(g=>g.draw());vehs.forEach(v=>{v.update();v.draw();});[[canvas.width*.1,canvas.height*.25,'rgba(124,58,237,0.025)'],[canvas.width*.85,canvas.height*.55,'rgba(0,212,255,0.022)'],[canvas.width*.5,canvas.height*.85,'rgba(249,115,22,0.018)']].forEach(([bx,by,bc])=>{const bg=ctx.createRadialGradient(bx,by,0,bx,by,220);bg.addColorStop(0,bc);bg.addColorStop(1,'transparent');ctx.beginPath();ctx.arc(bx,by,220,0,Math.PI*2);ctx.fillStyle=bg;ctx.fill();});requestAnimationFrame(animate);}
+animate();
+</script>
+</body>
+</html>
